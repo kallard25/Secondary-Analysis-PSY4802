@@ -1,0 +1,147 @@
+---
+title: "Secondary Analysis"
+author: "Kennedy Allard"
+date: "2023-11-28"
+output: html_document
+---
+Data
+```{r}
+library(readxl)
+Babylab_WesternSydney_6_9m_bi_GF_Trial <- read_excel("C:/Users/kenia/Downloads/Babylab_WesternSydney_6-9m_bi_GF_Trial.xlsx")
+Babylab_WesternSydney_6_9m_mono_GF_Trial <- read_excel("C:/Users/kenia/Downloads/Babylab_WesternSydney_6-9m_mono_GF_Trial.xlsx")
+Babylab_WesternSydney_12_15m_bi_GF_Trial <- read_excel("C:/Users/kenia/Downloads/Babylab_WesternSydney_12-15m_bi_GF_Trial.xlsx")
+Babylab_WesternSydney_12_15m_mono_GF_Trial <- read_excel("C:/Users/kenia/Downloads/Babylab_WesternSydney_12-15m_mono_GF_Trial.xlsx")
+```
+
+
+Data Cleaning
+```{r}
+BilingualInfantsTwelve_Fifteen<- subset(Babylab_WesternSydney_12_15m_bi_GF_Trial[c("subid", "trial_num", "fixation_congruent")])
+```
+
+```{r}
+MonolingualInfantsTwelve_Fifteen<- subset(Babylab_WesternSydney_12_15m_mono_GF_Trial[c("subid", "trial_num", "fixation_congruent")])
+```
+
+```{r}
+BilingualInfantsSix_Nine<- subset(Babylab_WesternSydney_6_9m_bi_GF_Trial[c("subid", "trial_num", "fixation_congruent")])
+```
+
+```{r}
+MonolingualInfantsSix_Nine<- subset(Babylab_WesternSydney_6_9m_mono_GF_Trial[c("subid", "trial_num", "fixation_congruent")])
+```
+
+```{r}
+library(tidyverse)
+BiBabies<- rbind.data.frame(BilingualInfantsSix_Nine, BilingualInfantsTwelve_Fifteen)
+MonoBabies<- rbind.data.frame(MonolingualInfantsSix_Nine, MonolingualInfantsTwelve_Fifteen)
+```
+
+```{r}
+BiBabiesWide<- pivot_wider(BiBabies, id_cols = c("subid"), names_from = "trial_num", values_from = "fixation_congruent")
+MonoBabiesWide<- pivot_wider(MonoBabies, id_cols = c("subid"), names_from = "trial_num", values_from = "fixation_congruent")
+```
+
+```{r}
+BiBabiesWide$MonoOrBi<- NA
+BiBabiesWide$MonoOrBi<- "Bilingual"
+```
+
+```{r}
+MonoBabiesWide$MonoOrBi<- NA
+MonoBabiesWide$MonoOrBi<- "Monolingual"
+```
+
+```{r}
+LingoBabiesWide<- rbind.data.frame(BiBabiesWide, MonoBabiesWide)
+```
+
+```{r}
+BiBabies$MonoOrBi<- NA
+BiBabies$MonoOrBi<- "Bilingual"
+```
+
+```{r}
+MonoBabies$MonoOrBi<- NA
+MonoBabies$MonoOrBi<- "Monolingual"
+```
+
+```{r}
+LingoBabies<- rbind.data.frame(BiBabies, MonoBabies)
+```
+
+```{r}
+BilingualInfantsSix_Nine$MonoOrBi<- NA
+BilingualInfantsSix_Nine$MonoOrBi<- "Bilingual"
+BilingualInfantsSix_Nine$Age<- NA
+BilingualInfantsSix_Nine$Age<- "Six_Nine_M"
+```
+
+```{r}
+MonolingualInfantsSix_Nine$MonoOrBi<- NA
+MonolingualInfantsSix_Nine$MonoOrBi<- "Monolingual"
+MonolingualInfantsSix_Nine$Age<- NA
+MonolingualInfantsSix_Nine$Age<- "Six_Nine_M"
+```
+
+```{r}
+BilingualInfantsTwelve_Fifteen$MonoOrBi<- NA
+BilingualInfantsTwelve_Fifteen$MonoOrBi<- "Bilingual"
+BilingualInfantsTwelve_Fifteen$Age<- NA
+BilingualInfantsTwelve_Fifteen$Age<- "Twelve_Fifteen_M"
+```
+
+```{r}
+MonolingualInfantsTwelve_Fifteen$MonoOrBi<- NA
+MonolingualInfantsTwelve_Fifteen$MonoOrBi<- "Monolingual"
+MonolingualInfantsTwelve_Fifteen$Age<- NA
+MonolingualInfantsTwelve_Fifteen$Age<- "Twelve_Fifteen_M"
+```
+
+```{r}
+AgeBabies<- rbind.data.frame(MonolingualInfantsSix_Nine, BilingualInfantsSix_Nine, MonolingualInfantsTwelve_Fifteen, BilingualInfantsTwelve_Fifteen)
+```
+
+#Statistical Approach
+
+Using data from the "MB1G The Development of Gaze Following in Monolingual and Bilingual Infants", we conducted three statistical tests, a repeated measures ANOVA, Tukey HSD, and an ANOVA with a predictor. For our first statistical test we compared how monolingual and bilingual infants compare in the length of gaze following. Our second analysis consisted of a follow up Tukey HSD test comparing the same sample group. Our final statistical analysis we tested age and the length of gaze following using an ANOVA with a predictor, monolingual or bilingual. 
+
+
+#Hypothesis 1: Bilingual infants have better-developed gaze-following abilities comapred to monolingual infants. 
+
+Repeated Measures ANOVA and Post-Hoc Test
+```{r}
+aov(fixation_congruent ~ MonoOrBi, data = LingoBabies)
+A1<- aov(fixation_congruent ~ MonoOrBi, data = LingoBabies)
+summary(A1)
+```
+
+Tukey HSD
+```{r}
+TukeyHSD(A1)
+```
+
+Graph
+```{r}
+library(ggplot2)
+library(viridisLite)
+ggplot(LingoBabies, aes(MonoOrBi, color = fixation_congruent))+ geom_bar(color = "black", fill = "lightblue")+ylab(label = "Fixation")+ xlab(label= "Monolingual or Bilingual")+ ggtitle("Monolingual v. Biligual Babies Fixation \n")
+```
+
+
+#Hypothesis 2: Older (12-15 months) infants have better gaze-following abilities compared to younger infants (6-9 months)
+
+ANOVA w/ Language as Predictor
+```{r}
+aov(fixation_congruent ~ Age + MonoOrBi, data = AgeBabies)
+A2<- aov(fixation_congruent ~ Age + MonoOrBi, data = AgeBabies)
+summary(A2)
+```
+
+Graph
+```{r}
+ggplot(AgeBabies, aes(Age, fixation_congruent, color= MonoOrBi))+ geom_boxplot()+ ylab(label = "Fixation")+ ggtitle("Older v. Younger Infant Fixation")
+```
+#Results
+
+After running our first statistical test which is a repeated measures ANOVA test, we found that the difference in language, monolingual or bilingual, has no statistical significance (and there isnt enough evidence to reject the null hypothesis?). We used a Tukey analysis test to follow up, and again, we found no statistical significance. On or final analysis, using an ANOVA test with a predictor, we also found to be not significant.
